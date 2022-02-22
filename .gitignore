@@ -1,0 +1,14 @@
+Thumbs.db
+.DS_Store
+
+# IDE
+.idea
+
+# Dependency directories
+node_modules
+
+# parcel
+.cache
+dist
+
+code.js

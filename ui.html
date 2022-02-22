@@ -1,0 +1,60 @@
+<!--
+  このファイルには、プラグインのUIに関するコードが格納されています
+  ブラウザAPIにはアクセスできますが、Figmaの「scene」にはアクセスできません
+-->
+<h2>テキスト校正くん</h2>
+<p id="characters"></p>
+<p id="LintList"></p>
+<button id="close">閉じる</button>
+<script>
+// プラグインを閉じるボタン
+document.getElementById('close').onclick = () => {
+  parent.postMessage({ pluginMessage: 'closePlugin' }, '*')
+}
+
+// メインコードからデータを渡された際に実行する処理です
+// 今回はプラグイン起動時に、以下の処理を行います
+// - テキスト以外が選択された場合アラートを出し閉じる
+// - テキストが選択された場合テキスト校正くんを実行し、表示する
+window.onmessage = async (event) => {
+  // テキスト以外が選択された際の処理
+  if (event.data.pluginMessage.type === 'notTextNode') {
+    alert("テキストを選択してください")
+    parent.postMessage({ pluginMessage: 'closePlugin' }, '*')
+    return
+  }
+
+  // 現在選択中のテキスト
+  const sentences = event.data.pluginMessage.current
+
+  document.getElementById("characters").innerText = sentences;
+
+  // テキスト校正くんを実行します
+  // 外部へのリクエストはHTML側からのみ行え、fetch APIが扱えないのでXMLHttpRequestを使います
+  // 参考記事（https://www.figma.com/plugin-docs/making-network-requests/）
+  if (event.data.pluginMessage.type === 'networkRequest') {
+    const request = new XMLHttpRequest()
+    request.onreadystatechange = function()
+    {
+      const READYSTATE_COMPLETED = 4;
+      const HTTP_STATUS_OK = 200;
+
+      if( this.readyState === READYSTATE_COMPLETED
+        && this.status === HTTP_STATUS_OK )
+      {
+        // レスポンスの表示
+        console.log(this)
+        console.log(JSON.parse(this.response).messages)
+        document.getElementById("LintList").innerText = this.responseText;
+      }
+    }
+    // 拡張機能以外の目的でアクセスしないでね！
+    const address = "https://textcheck-3c82d.firebaseapp.com/textlint";
+    request.open('POST', address)
+    request.setRequestHeader("Accept", "application/json; charset=UTF-8")
+    request.setRequestHeader("Content-Type", "application/json; charset=UTF-8")
+    request.send(JSON.stringify({sentences, type: "Figma"}))
+  }
+}
+
+</script>
