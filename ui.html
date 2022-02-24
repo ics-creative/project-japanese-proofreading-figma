@@ -2,10 +2,28 @@
   このファイルには、プラグインのUIに関するコードが格納されています
   ブラウザAPIにはアクセスできますが、Figmaの「scene」にはアクセスできません
 -->
+<style>
+  .buttonClose {
+    background: none;
+    border: 1px solid #9F9F9F;
+    color: #9F9F9F;
+    box-sizing: border-box;
+    border-radius: 20px;
+    cursor: pointer;
+    line-height: 16px;
+    outline: none;
+    padding: 7px 16px 6px;
+    text-align: center;
+  }
+  .buttonClose:hover {
+    background-color: #9F9F9F;
+    color: #ffffff;
+  }
+</style>
 <h2>テキスト校正くん</h2>
 <p id="characters"></p>
 <p id="LintList"></p>
-<button id="close">閉じる</button>
+<button class="buttonClose" id="close">閉じる</button>
 <script>
 // プラグインを閉じるボタン
 document.getElementById('close').onclick = () => {
