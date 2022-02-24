@@ -47,19 +47,31 @@ window.onmessage = async (event) => {
         const ul = document.getElementById('LintList');
         // 受け取ったメッセージの配列を取得
         const messagesArray = JSON.parse(this.response).messages
-        // メッセージを表示するためのHTMLタグ
-        let lintListHtml = ""
 
-        for (let count = 0; count < messagesArray.length; count++) {
-          // メッセージをHTMLタグに整形し、変数に格納
-          lintListHtml = lintListHtml + "<li>✅" + messagesArray[count].message.replace( '\n', '</br>' ) + "</li>"
+        if(messagesArray.length <= 0){
+          // テキストに問題が無い場合
+
+          // ul要素内にメッセージを表示
+          ul.innerHTML = "<li>🆗文章に問題がありませんでした。</li>"
+          // 読み込み完了（仮置き）
+          document.getElementById("characters").innerText = "読み込み完了！";
+        } else {
+          // テキストに問題がある場合
+
+          // メッセージを表示するためのHTMLタグ
+          let lintListHtml = ""
+
+          for (let count = 0; count < messagesArray.length; count++) {
+            // メッセージをHTMLタグに整形し、変数に格納
+            lintListHtml = lintListHtml + "<li>✅" + messagesArray[count].message.replace( '\n', '</br>' ) + "</li>"
+          }
+
+          // ul要素内にメッセージを表示
+          ul.innerHTML = lintListHtml
+
+          // 読み込み完了（仮置き）
+          document.getElementById("characters").innerText = "読み込み完了！";
         }
-
-        // ul要素内にメッセージを表示
-        ul.innerHTML = lintListHtml
-
-        // 読み込み完了（仮置き）
-        document.getElementById("characters").innerText = "読み込み完了！";
       }
     }
     // 拡張機能以外の目的でアクセスしないでね！
