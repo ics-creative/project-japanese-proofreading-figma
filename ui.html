@@ -27,7 +27,8 @@ window.onmessage = async (event) => {
   // 現在選択中のテキスト
   const sentences = event.data.pluginMessage.current
 
-  document.getElementById("characters").innerText = sentences;
+  // 読み込み開始（仮置き）
+  document.getElementById("characters").innerText = "読み込み中";
 
   // テキスト校正くんを実行します
   // 外部へのリクエストはHTML側からのみ行え、fetch APIが扱えないのでXMLHttpRequestを使います
@@ -42,10 +43,23 @@ window.onmessage = async (event) => {
       if( this.readyState === READYSTATE_COMPLETED
         && this.status === HTTP_STATUS_OK )
       {
-        // レスポンスの表示
-        console.log(this)
-        console.log(JSON.parse(this.response).messages)
-        document.getElementById("LintList").innerText = this.responseText;
+        // ul要素を取得
+        const ul = document.getElementById('LintList');
+        // 受け取ったメッセージの配列を取得
+        const messagesArray = JSON.parse(this.response).messages
+        // メッセージを表示するためのHTMLタグ
+        let lintListHtml = ""
+
+        for (let count = 0; count < messagesArray.length; count++) {
+          // メッセージをHTMLタグに整形し、変数に格納
+          lintListHtml = lintListHtml + "<li>✅" + messagesArray[count].message.replace( '\n', '</br>' ) + "</li>"
+        }
+
+        // ul要素内にメッセージを表示
+        ul.innerHTML = lintListHtml
+
+        // 読み込み完了（仮置き）
+        document.getElementById("characters").innerText = "読み込み完了！";
       }
     }
     // 拡張機能以外の目的でアクセスしないでね！
