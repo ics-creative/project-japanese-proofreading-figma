@@ -35,6 +35,9 @@ npm run dev
 ```
 
 4.Figmaのデスクトップアプリを起動します
+
 5.`Menu > Plugins > Development > Import plugin from manifest...` の順に選択します
+
 6.project-japanese-proofreading-figma/manifest.json を選択します
-7.`Menu > Plugins > Development > Japanese Proofreading`を選択し、
+
+7.校正を行いたいテキストを選択後、`Menu > Plugins > Development > Japanese Proofreading`を選択し、プラグインを実行します
