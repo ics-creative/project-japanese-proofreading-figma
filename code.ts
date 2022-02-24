@@ -15,6 +15,14 @@ figma.showUI(__html__);
  * @param page
  */
 function postTextForUI(page: PageNode) {
+  if(page.selection.length !== 1) {
+    // 複数の要素を選択している場合、または何も選択していない場合
+    figma.ui.postMessage({
+      type: 'selectMultiple'
+    })
+    return
+  }
+
   // 現在選択中のNode
   const selectionNode = page.selection[0];
 
@@ -23,6 +31,11 @@ function postTextForUI(page: PageNode) {
       figma.ui.postMessage({
         type: 'networkRequest',
         current: selectionNode.characters
+      })
+    } else {
+      // テキスト要素を選択しているものの、1文字も入力されていない場合
+      figma.ui.postMessage({
+        type: 'notTextNode'
       })
     }
   } else {

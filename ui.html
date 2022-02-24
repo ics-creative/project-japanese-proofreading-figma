@@ -119,6 +119,13 @@ document.getElementById('close').onclick = () => {
 // - テキスト以外が選択された場合アラートを出し閉じる
 // - テキストが選択された場合テキスト校正くんを実行し、表示する
 window.onmessage = async (event) => {
+  // 複数の要素が選択された際の処理
+  if (event.data.pluginMessage.type === 'selectMultiple') {
+    alert("テキストを1つだけ選択してください")
+    parent.postMessage({ pluginMessage: 'closePlugin' }, '*')
+    return
+  }
+
   // テキスト以外が選択された際の処理
   if (event.data.pluginMessage.type === 'notTextNode') {
     alert("テキストを選択してください")
