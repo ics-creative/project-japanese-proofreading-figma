@@ -2,8 +2,8 @@
 // メインコードからは Figma の「scene」(Figma ドキュメントを構成するレイヤーの階層) にアクセスできます
 // 参考記事（https://zenn.dev/ixkaito/articles/how-to-make-a-figma-plugin）
 
-// プラグイン起動時にプラグイン用モーダルUIを表示します。
-figma.showUI(__html__, { width: 344, height: 255 });
+// プラグイン起動時にプラグイン用モーダルUIの設定を行います。この段階では非表示です。
+figma.showUI(__html__, { width: 344, height: 255, title: "テキスト校正くん", visible: false });
 
 /**
  * プラグイン起動時に実行され、現在選択しているテキストを取得しHTML側へ渡します
@@ -28,10 +28,12 @@ const postTextForUI = (page: PageNode) => {
 
   if (selectionNode.type === "TEXT") {
     if (selectionNode.characters) {
+      // 問題がない場合。テキスト校正くんの実行とモーダルUIの表示を行います。
       figma.ui.postMessage({
         type: "networkRequest",
         current: selectionNode.characters,
       });
+      figma.ui.show()
     } else {
       // テキスト要素を選択しているものの、1文字も入力されていない場合
       figma.ui.postMessage({
