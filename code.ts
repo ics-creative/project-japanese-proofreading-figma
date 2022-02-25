@@ -3,7 +3,12 @@
 // 参考記事（https://zenn.dev/ixkaito/articles/how-to-make-a-figma-plugin）
 
 // プラグイン起動時にプラグイン用モーダルUIの設定を行います。この段階では非表示です。
-figma.showUI(__html__, { width: 344, height: 255, title: "テキスト校正くん", visible: false });
+figma.showUI(__html__, {
+  width: 344,
+  height: 255,
+  title: "テキスト校正くん",
+  visible: false,
+});
 
 /**
  * プラグイン起動時に実行され、現在選択しているテキストを取得しHTML側へ渡します
@@ -33,7 +38,7 @@ const postTextForUI = (page: PageNode) => {
         type: "networkRequest",
         current: selectionNode.characters,
       });
-      figma.ui.show()
+      figma.ui.show();
     } else {
       // テキスト要素を選択しているものの、1文字も入力されていない場合
       figma.ui.postMessage({
