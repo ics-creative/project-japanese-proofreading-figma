@@ -137,14 +137,14 @@
 
     // 複数の要素が選択された際の処理
     if (type === "selectMultiple") {
-      alert("テキストを1つだけ選択してください");
+      alert("テキストを1つだけ選択してください。");
       parent.postMessage({ pluginMessage: "closePlugin" }, "*");
       return;
     }
 
     // テキスト以外が選択された際の処理
     if (type === "notTextNode") {
-      alert("テキストを選択してください");
+      alert("テキストを選択してください。");
       parent.postMessage({ pluginMessage: "closePlugin" }, "*");
       return;
     }
