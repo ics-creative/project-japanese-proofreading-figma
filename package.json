@@ -1,15 +1,15 @@
 {
-  "name": "test",
+  "name": "japanese-proofreading",
   "version": "1.0.0",
-  "description": "Your Figma plugin",
+  "description": "Figma上で日本語の文章をチェックする拡張機能です。",
   "main": "code.js",
   "scripts": {
     "dev": "tsc -w",
     "build": "tsc -p tsconfig.json",
     "format": "prettier \"**/*.{ts,html}\" --write"
   },
-  "author": "",
-  "license": "",
+  "author": "ics-ebie",
+  "license": "MIT",
   "devDependencies": {
     "@figma/plugin-typings": "^1.41.1",
     "prettier": "^2.5.1",
