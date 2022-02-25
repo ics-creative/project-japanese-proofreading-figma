@@ -101,7 +101,8 @@
     text-align: center;
   }
 
-  .buttonClose:hover, .buttonClose:focus {
+  .buttonClose:hover,
+  .buttonClose:focus {
     background-color: #9f9f9f;
     color: #ffffff;
   }
@@ -122,9 +123,9 @@
 </div>
 <script>
   // プラグインを閉じるボタン
-  document.getElementById("close").onclick = () => {
+  document.getElementById("close").addEventListener("click", () => {
     parent.postMessage({ pluginMessage: "closePlugin" }, "*");
-  };
+  });
 
   // メインコードからデータを渡された際に実行する処理です
   // 今回はプラグイン起動時に、以下の処理を行います
