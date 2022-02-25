@@ -3,7 +3,7 @@
 // 参考記事（https://zenn.dev/ixkaito/articles/how-to-make-a-figma-plugin）
 
 // プラグイン起動時にプラグイン用モーダルUIを表示します。
-figma.showUI(__html__);
+figma.showUI(__html__, { width: 600, height: 400 });
 
 /**
  * プラグイン起動時に実行され、現在選択しているテキストを取得しHTML側へ渡します
