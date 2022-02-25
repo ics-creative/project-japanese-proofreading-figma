@@ -15,37 +15,37 @@ figma.showUI(__html__);
  * @param page
  */
 function postTextForUI(page: PageNode) {
-  if(page.selection.length !== 1) {
+  if (page.selection.length !== 1) {
     // 複数の要素を選択している場合、または何も選択していない場合
     figma.ui.postMessage({
-      type: 'selectMultiple'
-    })
-    return
+      type: "selectMultiple",
+    });
+    return;
   }
 
   // 現在選択中のNode
   const selectionNode = page.selection[0];
 
-  if(selectionNode.type === "TEXT") {
-    if(selectionNode.characters) {
+  if (selectionNode.type === "TEXT") {
+    if (selectionNode.characters) {
       figma.ui.postMessage({
-        type: 'networkRequest',
-        current: selectionNode.characters
-      })
+        type: "networkRequest",
+        current: selectionNode.characters,
+      });
     } else {
       // テキスト要素を選択しているものの、1文字も入力されていない場合
       figma.ui.postMessage({
-        type: 'notTextNode'
-      })
+        type: "notTextNode",
+      });
     }
   } else {
     // テキスト以外の要素を選択している場合
     figma.ui.postMessage({
-      type: 'notTextNode'
-    })
+      type: "notTextNode",
+    });
   }
 }
-postTextForUI(figma.currentPage)
+postTextForUI(figma.currentPage);
 
 /**
  * HTMLページ内から `parent.postMessage`を呼び出すと、発火する処理です
@@ -53,8 +53,8 @@ postTextForUI(figma.currentPage)
  *
  * @param msg
  */
-figma.ui.onmessage = msg => {
-  if(msg === "closePlugin"){
+figma.ui.onmessage = (msg) => {
+  if (msg === "closePlugin") {
     // プラグインを閉じる
     figma.closePlugin();
   }
