@@ -17,12 +17,14 @@
   }
 
   .title {
-    width: 280px;
+    width: 100%;
     margin: 0 0 20px;
   }
 
   .title img {
-    width: 100%;
+    display: block;
+    width: 280px;
+    margin: 0 auto;
   }
 
   .loadingWrap {
@@ -62,8 +64,14 @@
   }
 
   .lintList {
+    width: 100%;
     list-style-type: none;
     margin: 0 0 20px;
+    padding: 0;
+  }
+
+  .lintList.is-center {
+    text-align: center;
   }
 
   .lintList li {
@@ -99,7 +107,7 @@
   <div class="loadingWrap" id="loading">
     <p class="loading"></p>
   </div>
-  <p class="lintList" id="lintList"></p>
+  <ul class="lintList" id="lintList"></ul>
   <button class="buttonClose" id="close">閉じる</button>
 </div>
 <script>
@@ -162,6 +170,7 @@
             // ul要素内にメッセージを表示
             ul.innerHTML = "<li>🆗文章に問題がありませんでした。</li>";
             // 読み込み完了
+            ul.classList.add("is-center");
             loading.classList.remove("is-visible");
           } else {
             // テキストに問題がある場合
