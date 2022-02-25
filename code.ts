@@ -14,7 +14,7 @@ figma.showUI(__html__);
  *
  * @param page
  */
-function postTextForUI(page: PageNode) {
+const postTextForUI = (page: PageNode) => {
   if (page.selection.length !== 1) {
     // 複数の要素を選択している場合、または何も選択していない場合
     figma.ui.postMessage({
@@ -44,7 +44,7 @@ function postTextForUI(page: PageNode) {
       type: "notTextNode",
     });
   }
-}
+};
 postTextForUI(figma.currentPage);
 
 /**

@@ -124,15 +124,18 @@
   // - テキスト以外が選択された場合アラートを出し閉じる
   // - テキストが選択された場合テキスト校正くんを実行し、表示する
   window.onmessage = async (event) => {
+    // メインコードから渡されたタイプを取得
+    const type = event.data.pluginMessage.type;
+
     // 複数の要素が選択された際の処理
-    if (event.data.pluginMessage.type === "selectMultiple") {
+    if (type === "selectMultiple") {
       alert("テキストを1つだけ選択してください");
       parent.postMessage({ pluginMessage: "closePlugin" }, "*");
       return;
     }
 
     // テキスト以外が選択された際の処理
-    if (event.data.pluginMessage.type === "notTextNode") {
+    if (type === "notTextNode") {
       alert("テキストを選択してください");
       parent.postMessage({ pluginMessage: "closePlugin" }, "*");
       return;
@@ -149,20 +152,20 @@
     // テキスト校正くんを実行します
     // 外部へのリクエストはHTML側からのみ行え、fetch APIが扱えないのでXMLHttpRequestを使います
     // 参考記事（https://www.figma.com/plugin-docs/making-network-requests/）
-    if (event.data.pluginMessage.type === "networkRequest") {
+    if (type === "networkRequest") {
       const request = new XMLHttpRequest();
-      request.onreadystatechange = function () {
+      request.onreadystatechange = (e) => {
         const READYSTATE_COMPLETED = 4;
         const HTTP_STATUS_OK = 200;
 
         if (
-          this.readyState === READYSTATE_COMPLETED &&
-          this.status === HTTP_STATUS_OK
+          e.currentTarget.readyState === READYSTATE_COMPLETED &&
+          e.currentTarget.status === HTTP_STATUS_OK
         ) {
           // ul要素を取得
           const ul = document.getElementById("lintList");
           // 受け取ったメッセージの配列を取得
-          const messagesArray = JSON.parse(this.response).messages;
+          const messagesArray = JSON.parse(e.currentTarget.response).messages;
 
           if (messagesArray.length <= 0) {
             // テキストに問題が無い場合
