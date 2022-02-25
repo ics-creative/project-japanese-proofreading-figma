@@ -9,16 +9,19 @@
 
   .layout {
     display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    width: calc(100% - 20px);
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    width: calc(100% - 64px);
+    min-height: calc(100% - 64px);
+    align-items: center;
     margin: 0;
-    padding: 10px;
+    padding: 32px;
+    flex-direction: column;
   }
 
   .title {
     width: 100%;
-    margin: 0 0 20px;
+    margin: 0 0 32px;
   }
 
   .title img {
@@ -39,7 +42,7 @@
 
   .loading,
   .loading:after {
-    margin: 0 auto 20px;
+    margin: 0 auto;
     border-radius: 50%;
     width: 30px;
     height: 30px;
@@ -66,7 +69,7 @@
   .lintList {
     width: 100%;
     list-style-type: none;
-    margin: 0 0 20px;
+    margin: 0 0 32px;
     padding: 0;
   }
 
@@ -75,7 +78,11 @@
   }
 
   .lintList li {
-    margin: 0 0 10px;
+    margin: 0 0 8px;
+  }
+
+  .lintList li:last-child {
+    margin: 0;
   }
 
   .buttonClose {
@@ -171,7 +178,6 @@
             ul.innerHTML = "<li>🆗文章に問題がありませんでした。</li>";
             // 読み込み完了
             ul.classList.add("is-center");
-            loading.classList.remove("is-visible");
           } else {
             // テキストに問題がある場合
 
@@ -191,8 +197,9 @@
             ul.innerHTML = lintListHtml;
 
             // 読み込み完了
-            loading.classList.remove("is-visible");
+            parent.postMessage({ pluginMessage: "panelResize" }, "*");
           }
+          loading.classList.remove("is-visible");
         }
       };
       // 拡張機能以外の目的でアクセスしないでね！

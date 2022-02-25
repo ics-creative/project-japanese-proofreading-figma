@@ -3,7 +3,7 @@
 // 参考記事（https://zenn.dev/ixkaito/articles/how-to-make-a-figma-plugin）
 
 // プラグイン起動時にプラグイン用モーダルUIを表示します。
-figma.showUI(__html__, { width: 600, height: 400 });
+figma.showUI(__html__, { width: 344, height: 255 });
 
 /**
  * プラグイン起動時に実行され、現在選択しているテキストを取得しHTML側へ渡します
@@ -57,5 +57,9 @@ figma.ui.onmessage = (msg) => {
   if (msg === "closePlugin") {
     // プラグインを閉じる
     figma.closePlugin();
+  }
+  if (msg === "panelResize") {
+    // プラグインを閉じる
+    figma.ui.resize(600, 400);
   }
 };
