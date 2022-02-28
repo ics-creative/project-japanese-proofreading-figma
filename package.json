@@ -2,7 +2,6 @@
   "name": "japanese-proofreading",
   "version": "1.0.0",
   "description": "Figma上で日本語の文章をチェックする拡張機能です。",
-  "main": "code.js",
   "scripts": {
     "dev": "tsc -w",
     "build": "tsc -p tsconfig.json",
