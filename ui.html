@@ -118,7 +118,10 @@
 <script>
   // プラグインを閉じるボタン
   document.getElementById("close").addEventListener("click", () => {
-    parent.postMessage({ pluginMessage: "closePlugin" }, "*");
+    const index = Number(
+      document.getElementById("close").getAttribute("data-index")
+    );
+    parent.postMessage({ pluginMessage: index }, "*");
   });
 
   // メインコードからデータを渡された際に実行する処理です
@@ -131,20 +134,23 @@
 
     // 複数の要素が選択された際の処理
     if (type === "selectMultiple") {
-      alert("テキストを1つだけ選択してください。");
+      alert("テキストを選択してください。");
       parent.postMessage({ pluginMessage: "closePlugin" }, "*");
       return;
     }
 
     // テキスト以外が選択された際の処理
     if (type === "notTextNode") {
-      alert("テキストを選択してください。");
+      alert("テキストを含めて選択してください。");
       parent.postMessage({ pluginMessage: "closePlugin" }, "*");
       return;
     }
 
     // 現在選択中のテキスト
-    const sentences = event.data.pluginMessage.current;
+    const textArray = event.data.pluginMessage.textArray;
+    const index = event.data.pluginMessage.index;
+    // ul要素を取得
+    const ul = document.getElementById("lintList");
     // ローディング要素の取得
     const loading = document.getElementById("loading");
 
@@ -156,6 +162,12 @@
     // 参考記事（https://www.figma.com/plugin-docs/making-network-requests/）
     if (type === "networkRequest") {
       const request = new XMLHttpRequest();
+      // 2回目以降の表示の際には、ローディングを表示する
+      if (loading.classList.contains("is-visible")) {
+        loading.classList.add("is-visible");
+        ul.classList.remove("is-center");
+        ul.innerHTML = "";
+      }
       request.onreadystatechange = (e) => {
         const READYSTATE_COMPLETED = 4;
         const HTTP_STATUS_OK = 200;
@@ -164,8 +176,8 @@
           e.currentTarget.readyState === READYSTATE_COMPLETED &&
           e.currentTarget.status === HTTP_STATUS_OK
         ) {
-          // ul要素を取得
-          const ul = document.getElementById("lintList");
+          // 閉じるボタンを取得
+          const closeButton = document.getElementById("close");
           // 受け取ったメッセージの配列を取得
           const messagesArray = JSON.parse(e.currentTarget.response).messages;
 
@@ -198,6 +210,7 @@
             parent.postMessage({ pluginMessage: "panelResize" }, "*");
           }
           loading.classList.remove("is-visible");
+          closeButton.setAttribute("data-index", index);
         }
       };
       // 拡張機能以外の目的でアクセスしないでね！
@@ -208,7 +221,9 @@
         "Content-Type",
         "application/json; charset=UTF-8"
       );
-      request.send(JSON.stringify({ sentences, type: "Figma" }));
+      request.send(
+        JSON.stringify({ sentences: textArray[index].text, type: "Figma" })
+      );
     }
   };
 </script>
