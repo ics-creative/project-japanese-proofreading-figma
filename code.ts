@@ -109,7 +109,6 @@ postTextForUI(figma.currentPage);
  * 渡す引数によって処理の分岐を行います
  *
  * @param msg
- * @param index
  */
 figma.ui.onmessage = (msg) => {
   if (msg === "panelResize") {
