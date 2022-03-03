@@ -165,7 +165,6 @@
       // 2回目以降の表示の際には、ローディングを表示する
       if (loading.classList.contains("is-visible")) {
         loading.classList.add("is-visible");
-        ul.classList.remove("is-center");
         ul.innerHTML = "";
       }
       request.onreadystatechange = (e) => {
@@ -181,33 +180,78 @@
           // 受け取ったメッセージの配列を取得
           const messagesArray = JSON.parse(e.currentTarget.response).messages;
 
-          if (messagesArray.length <= 0) {
-            // テキストに問題が無い場合
+          if (textArray.length === 1) {
+            // 校正対象となるテキストが1つだけの場合
+            if (messagesArray.length <= 0) {
+              // テキストに問題がない場合
 
-            // ul要素内にメッセージを表示
-            ul.innerHTML = "<li>🆗文章に問題がありませんでした。</li>";
-            // 読み込み完了
-            ul.classList.add("is-center");
-          } else {
-            // テキストに問題がある場合
+              // ul要素内にメッセージを表示
+              ul.innerHTML = "<li>🆗文章に問題がありませんでした。</li>";
+              // 読み込み完了
+              ul.classList.add("is-center");
+            } else {
+              // テキストに問題がある場合
 
-            // メッセージを表示するためのHTMLタグ
-            let lintListHtml = "";
+              // メッセージを表示するためのHTMLタグ
+              let lintListHtml = "";
 
-            for (let count = 0; count < messagesArray.length; count++) {
-              // メッセージをHTMLタグに整形し、変数に格納
-              lintListHtml =
-                lintListHtml +
-                "<li>✅" +
-                messagesArray[count].message.replace("\n", "</br>") +
-                "</li>";
+              for (let count = 0; count < messagesArray.length; count++) {
+                // メッセージをHTMLタグに整形し、変数に格納
+                lintListHtml =
+                  lintListHtml +
+                  "<li>✅" +
+                  messagesArray[count].message.replace("\n", "</br>") +
+                  "</li>";
+              }
+
+              // ul要素内にメッセージを表示
+              ul.innerHTML = lintListHtml;
+              // 読み込み完了
+              parent.postMessage({ pluginMessage: "panelResize" }, "*");
             }
+          } else {
+            // 校正対象となるテキストが複数の場合
+            if (messagesArray.length <= 0) {
+              // テキストに問題が無い場合
+              if (
+                index === textArray.length - 1 &&
+                document
+                  .getElementById("close")
+                  .getAttribute("data-hasProblem") === null
+              ) {
+                // 複数選択の最後かつ、すべてのテキストに問題が無かった場合
 
-            // ul要素内にメッセージを表示
-            ul.innerHTML = lintListHtml;
+                // ul要素内にメッセージを表示
+                ul.innerHTML =
+                  "<li>🆗すべての文章に問題がありませんでした。</li>";
+                // 読み込み完了
+                ul.classList.add("is-center");
+              } else {
+                // テキストに問題が無い場合
+                parent.postMessage({ pluginMessage: index }, "*");
+              }
+            } else {
+              // テキストに問題がある場合
 
-            // 読み込み完了
-            parent.postMessage({ pluginMessage: "panelResize" }, "*");
+              // メッセージを表示するためのHTMLタグ
+              let lintListHtml = "";
+
+              for (let count = 0; count < messagesArray.length; count++) {
+                // メッセージをHTMLタグに整形し、変数に格納
+                lintListHtml =
+                  lintListHtml +
+                  "<li>✅" +
+                  messagesArray[count].message.replace("\n", "</br>") +
+                  "</li>";
+              }
+
+              // ul要素内にメッセージを表示
+              ul.innerHTML = lintListHtml;
+
+              // 読み込み完了
+              parent.postMessage({ pluginMessage: "panelResize" }, "*");
+              closeButton.setAttribute("data-hasProblem", index);
+            }
           }
           loading.classList.remove("is-visible");
           closeButton.setAttribute("data-index", index);
