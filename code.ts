@@ -25,7 +25,7 @@ const searchChildren = (child: SceneNode) => {
         node: child,
       });
     }
-  } else if (child.type === "GROUP" || child.type === "FRAME") {
+  } else if ("children" in child) {
     if (child.children) {
       child.children.forEach((child) => {
         searchChildren(child);
@@ -39,34 +39,29 @@ const searchChildren = (child: SceneNode) => {
  * @param item
  */
 const setTextArray = (item: PageNode) => {
-  if ("selection" in item) {
-    item.selection.forEach((parent) => {
-      if (parent.type === "TEXT") {
-        if (parent.characters) {
-          textArray.push({
-            text: parent.characters,
-            node: parent,
-          });
-        }
-      } else if (
-        parent.type === "SHAPE_WITH_TEXT" ||
-        parent.type === "STICKY"
-      ) {
-        if (parent.text.characters) {
-          textArray.push({
-            text: parent.text.characters,
-            node: parent,
-          });
-        }
-      } else if (parent.type === "GROUP" || parent.type === "FRAME") {
-        if (parent.children) {
-          parent.children.forEach((child) => {
-            searchChildren(child);
-          });
-        }
+  item.selection.forEach((parent) => {
+    if (parent.type === "TEXT") {
+      if (parent.characters) {
+        textArray.push({
+          text: parent.characters,
+          node: parent,
+        });
       }
-    });
-  }
+    } else if (parent.type === "SHAPE_WITH_TEXT" || parent.type === "STICKY") {
+      if (parent.text.characters) {
+        textArray.push({
+          text: parent.text.characters,
+          node: parent,
+        });
+      }
+    } else if ("children" in parent) {
+      if (parent.children) {
+        parent.children.forEach((child) => {
+          searchChildren(child);
+        });
+      }
+    }
+  });
 };
 
 /**
@@ -106,7 +101,7 @@ const postTextForUI = (page: PageNode) => {
     figma.ui.show();
     // 校正対象のテキストを選択状態とし、スクロールとズームを行う
     figma.currentPage.selection = [textArray[0].node];
-    figma.viewport.scrollAndZoomIntoView([textArray[0].node])
+    figma.viewport.scrollAndZoomIntoView([textArray[0].node]);
   }
 };
 postTextForUI(figma.currentPage);
@@ -121,10 +116,10 @@ figma.ui.onmessage = (msg) => {
   if (msg === "panelResize") {
     // パネルのリサイズ
     figma.ui.resize(600, 400);
-  } else if(msg === "closePlugin"){
+  } else if (msg === "closePlugin") {
     // 校正対象が無いなどの例外処理時にはプラグインを閉じる
     figma.closePlugin();
-  }  else if (msg === textArray.length - 1) {
+  } else if (msg === textArray.length - 1) {
     // 次の校正指摘が無い場合プラグインを閉じる
     figma.closePlugin();
   } else {
@@ -137,6 +132,6 @@ figma.ui.onmessage = (msg) => {
     });
     // 校正対象のテキストを選択状態とし、スクロールとズームを行う
     figma.currentPage.selection = [textArray[msg + 1].node];
-    figma.viewport.scrollAndZoomIntoView([textArray[msg + 1].node])
+    figma.viewport.scrollAndZoomIntoView([textArray[msg + 1].node]);
   }
 };
