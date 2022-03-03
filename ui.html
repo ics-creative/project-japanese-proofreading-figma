@@ -119,7 +119,7 @@
   // プラグインを閉じるボタン
   document.getElementById("close").addEventListener("click", () => {
     const index = Number(
-      document.getElementById("close").getAttribute("data-index")
+      document.getElementById("lintList").getAttribute("data-index")
     );
     parent.postMessage({ pluginMessage: index }, "*");
   });
@@ -148,6 +148,7 @@
 
     // 現在選択中のテキスト
     const textArray = event.data.pluginMessage.textArray;
+    // 現在の校正対象のindex
     const index = event.data.pluginMessage.index;
     // ul要素を取得
     const ul = document.getElementById("lintList");
@@ -175,8 +176,6 @@
           e.currentTarget.readyState === READYSTATE_COMPLETED &&
           e.currentTarget.status === HTTP_STATUS_OK
         ) {
-          // 閉じるボタンを取得
-          const closeButton = document.getElementById("close");
           // 受け取ったメッセージの配列を取得
           const messagesArray = JSON.parse(e.currentTarget.response).messages;
           // テキスト校正くんに指摘された内容をリストに表示する
@@ -218,9 +217,7 @@
               // テキストに問題がない場合
               if (
                 index === textArray.length - 1 &&
-                document
-                  .getElementById("close")
-                  .getAttribute("data-hasProblem") === null
+                ul.getAttribute("data-hasProblem") === null
               ) {
                 // 複数選択の最後かつ、すべてのテキストに問題が無かった場合
                 // ul要素内にメッセージを表示
@@ -236,11 +233,13 @@
               // テキストに問題がある場合
               creatLintList();
               // 「すべてのテキストに問題が無かった場合」の判定のため、data属性を付与する（この属性がなければ、すべて問題がないと判断）
-              closeButton.setAttribute("data-hasProblem", index);
+              ul.setAttribute("data-hasProblem", index);
             }
           }
+          // ローディングを非表示に
           loading.classList.remove("is-visible");
-          closeButton.setAttribute("data-index", index);
+          // 現在の校正対象のindexをデータ属性に付与
+          ul.setAttribute("data-index", index);
         }
       };
       // 拡張機能以外の目的でアクセスしないでね！

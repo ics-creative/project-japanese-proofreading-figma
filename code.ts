@@ -14,7 +14,7 @@ figma.showUI(__html__, {
 let textArray: { text: string; node: SceneNode }[] = [];
 
 /**
- * 選択したオブジェクトの子要素をすべて探索し、テキスト情報とIDを取得しtextArrayに格納します
+ * 選択したオブジェクトの子要素をすべて探索し、テキスト情報とnodeを取得しtextArrayに格納します
  * @param child
  */
 const searchChildren = (child: SceneNode) => {
@@ -35,7 +35,7 @@ const searchChildren = (child: SceneNode) => {
 };
 
 /**
- * 選択したオブジェクトから、テキスト情報とIDを取得しtextArrayに格納します
+ * 選択したオブジェクトから、テキスト情報とnodeを取得しtextArrayに格納します
  * @param item
  */
 const setTextArray = (item: PageNode) => {
