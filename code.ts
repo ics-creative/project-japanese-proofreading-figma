@@ -11,7 +11,7 @@ figma.showUI(__html__, {
 });
 
 // 校正を行うテキスト情報を格納する配列です
-let textArray: { text: string; id: string }[] = [];
+let textArray: { text: string; node: SceneNode }[] = [];
 
 /**
  * 選択したオブジェクトの子要素をすべて探索し、テキスト情報とIDを取得しtextArrayに格納します
@@ -22,7 +22,7 @@ const searchChildren = (child: SceneNode) => {
     if (child.characters) {
       textArray.push({
         text: child.characters,
-        id: child.id,
+        node: child,
       });
     }
   } else if (child.type === "GROUP" || child.type === "FRAME") {
@@ -45,7 +45,7 @@ const setTextArray = (item: PageNode) => {
         if (parent.characters) {
           textArray.push({
             text: parent.characters,
-            id: parent.id,
+            node: parent,
           });
         }
       } else if (
@@ -55,7 +55,7 @@ const setTextArray = (item: PageNode) => {
         if (parent.text.characters) {
           textArray.push({
             text: parent.text.characters,
-            id: parent.id,
+            node: parent,
           });
         }
       } else if (parent.type === "GROUP" || parent.type === "FRAME") {
@@ -87,10 +87,14 @@ const postTextForUI = (page: PageNode) => {
     return;
   }
 
+  // 選択したオブジェクトからテキストとそのノードをまとめた配列を作成
   setTextArray(page);
+  // レイヤーので降順並ぶので、昇順に直します
+  textArray.reverse();
 
   if (textArray.length === 0) {
     figma.ui.postMessage({
+      // 選択したオブジェクトにテキストが含まれていない場合
       type: "notTextNode",
     });
   } else {
@@ -100,6 +104,9 @@ const postTextForUI = (page: PageNode) => {
       index: 0,
     });
     figma.ui.show();
+    // 校正対象のテキストを選択状態とし、スクロールとズームを行う
+    figma.currentPage.selection = [textArray[0].node];
+    figma.viewport.scrollAndZoomIntoView([textArray[0].node])
   }
 };
 postTextForUI(figma.currentPage);
@@ -114,7 +121,10 @@ figma.ui.onmessage = (msg) => {
   if (msg === "panelResize") {
     // パネルのリサイズ
     figma.ui.resize(600, 400);
-  } else if (msg === textArray.length - 1) {
+  } else if(msg === "closePlugin"){
+    // 校正対象が無いなどの例外処理時にはプラグインを閉じる
+    figma.closePlugin();
+  }  else if (msg === textArray.length - 1) {
     // 次の校正指摘が無い場合プラグインを閉じる
     figma.closePlugin();
   } else {
@@ -125,5 +135,8 @@ figma.ui.onmessage = (msg) => {
       textArray: textArray,
       index: msg + 1,
     });
+    // 校正対象のテキストを選択状態とし、スクロールとズームを行う
+    figma.currentPage.selection = [textArray[msg + 1].node];
+    figma.viewport.scrollAndZoomIntoView([textArray[msg + 1].node])
   }
 };
