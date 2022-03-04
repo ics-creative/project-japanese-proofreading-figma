@@ -11,7 +11,7 @@ figma.showUI(__html__, {
 });
 
 // 校正を行うテキスト情報を格納する配列です
-let textArray: { text: string; node: SceneNode }[] = [];
+const textArray: { text: string; node: SceneNode }[] = [];
 
 /**
  * 選択したオブジェクトの子要素をすべて探索し、テキスト情報とnodeを取得しtextArrayに格納します
