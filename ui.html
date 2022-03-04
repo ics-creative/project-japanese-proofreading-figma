@@ -113,11 +113,11 @@
     <p class="loading"></p>
   </div>
   <ul class="lintList" id="lintList"></ul>
-  <button class="buttonClose" id="close">Close</button>
+  <button class="buttonClose" id="button">Next</button>
 </div>
 <script>
   // プラグインを閉じるボタン
-  document.getElementById("close").addEventListener("click", () => {
+  document.getElementById("button").addEventListener("click", () => {
     const index = Number(
       document.getElementById("lintList").getAttribute("data-index")
     );
@@ -154,6 +154,8 @@
     const ul = document.getElementById("lintList");
     // ローディング要素の取得
     const loading = document.getElementById("loading");
+    // ボタン要素の取得
+    const button = document.getElementById("button");
 
     // 読み込み開始
     loading.classList.add("is-visible");
@@ -163,6 +165,10 @@
     // 参考記事（https://www.figma.com/plugin-docs/making-network-requests/）
     if (type === "networkRequest") {
       const request = new XMLHttpRequest();
+      if (index === textArray.length - 1) {
+        // 校正対象が最後の場合、ボタンのテキストを「Close」へ変更
+        button.innerText = "Close";
+      }
       // 2回目以降の表示の際には、再度ローディングを表示する
       if (loading.classList.contains("is-visible")) {
         loading.classList.add("is-visible");
