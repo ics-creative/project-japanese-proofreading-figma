@@ -14,20 +14,27 @@ figma.showUI(__html__, {
 const textArray: { text: string; node: SceneNode }[] = [];
 
 /**
- * 選択したオブジェクトの子要素をすべて探索し、テキスト情報とnodeを取得しtextArrayに格納します
- * @param child
+ * テキスト情報とnodeを取得しtextArrayに格納する為の処理です
+ * @param node
  */
-const searchChildren = (child: SceneNode) => {
-  if (child.type === "TEXT") {
-    if (child.characters) {
+const setTextArrayObject = (node: SceneNode) => {
+  if (node.type === "TEXT") {
+    if (node.characters) {
       textArray.push({
-        text: child.characters,
-        node: child,
+        text: node.characters,
+        node: node,
       });
     }
-  } else if ("children" in child) {
-    if (child.children) {
-      child.children.forEach((child) => {
+  } else if (node.type === "SHAPE_WITH_TEXT" || node.type === "STICKY") {
+    if (node.text.characters) {
+      textArray.push({
+        text: node.text.characters,
+        node: node,
+      });
+    }
+  } else if ("children" in node) {
+    if (node.children) {
+      node.children.forEach((child) => {
         searchChildren(child);
       });
     }
@@ -35,32 +42,20 @@ const searchChildren = (child: SceneNode) => {
 };
 
 /**
- * 選択したオブジェクトから、テキスト情報とnodeを取得しtextArrayに格納します
+ * 選択したオブジェクトから、テキスト情報とnodeを取得しtextArrayに格納する為の2階層目以降の処理です
+ * @param child
+ */
+const searchChildren = (child: SceneNode) => {
+  setTextArrayObject(child)
+};
+
+/**
+ * 選択したオブジェクトから、テキスト情報とnodeを取得しtextArrayに格納する為の1階層目の処理です
  * @param item
  */
 const setTextArray = (item: PageNode) => {
-  item.selection.forEach((parent) => {
-    if (parent.type === "TEXT") {
-      if (parent.characters) {
-        textArray.push({
-          text: parent.characters,
-          node: parent,
-        });
-      }
-    } else if (parent.type === "SHAPE_WITH_TEXT" || parent.type === "STICKY") {
-      if (parent.text.characters) {
-        textArray.push({
-          text: parent.text.characters,
-          node: parent,
-        });
-      }
-    } else if ("children" in parent) {
-      if (parent.children) {
-        parent.children.forEach((child) => {
-          searchChildren(child);
-        });
-      }
-    }
+  item.selection.forEach((node) => {
+    setTextArrayObject(node)
   });
 };
 
