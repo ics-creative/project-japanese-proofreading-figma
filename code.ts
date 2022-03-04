@@ -141,19 +141,21 @@ figma.ui.onmessage = (message: UiTransferType): void => {
   } else if (message === "closePlugin") {
     // 校正対象が無いなどの例外処理時にはプラグインを閉じる
     figma.closePlugin();
-  } else if (message === textArray.length - 1) {
-    // 次の校正指摘が無い場合プラグインを閉じる
-    figma.closePlugin();
-  } else {
-    // 次の校正指摘を表示する
-    figma.ui.resize(344, 255);
-    figma.ui.postMessage({
-      type: "networkRequest",
-      textArray: textArray,
-      index: message + 1,
-    } as requestType);
-    // 校正対象のテキストを選択状態とし、スクロールとズームを行う
-    figma.currentPage.selection = [textArray[message + 1].node];
-    figma.viewport.scrollAndZoomIntoView([textArray[message + 1].node]);
+  } else if (typeof message === "number") {
+    if (message === textArray.length - 1) {
+      // 次の校正指摘が無い場合プラグインを閉じる
+      figma.closePlugin();
+    } else {
+      // 次の校正指摘を表示する
+      figma.ui.resize(344, 255);
+      figma.ui.postMessage({
+        type: "networkRequest",
+        textArray: textArray,
+        index: message + 1,
+      } as requestType);
+      // 校正対象のテキストを選択状態とし、スクロールとズームを行う
+      figma.currentPage.selection = [textArray[message + 1].node];
+      figma.viewport.scrollAndZoomIntoView([textArray[message + 1].node]);
+    }
   }
 };
