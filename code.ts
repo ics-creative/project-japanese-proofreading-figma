@@ -2,6 +2,25 @@
 // メインコードからは Figma の「scene」(Figma ドキュメントを構成するレイヤーの階層) にアクセスできます
 // 参考記事（https://zenn.dev/ixkaito/articles/how-to-make-a-figma-plugin）
 
+/**
+ * アラート表示を行う際にpostMessageへ渡す型の定義です
+ */
+type alertType = {
+  /** アラートの種類 */
+  type: "notTextNode" | "hasNothing";
+};
+
+/**
+ * ネットワークリクエストを行う際にpostMessageへ渡す型の定義です
+ */
+type requestType = {
+  type: "networkRequest";
+  /** 校正対象のテキストとnodeをまとめた配列 */
+  textArray: { text: string; node: SceneNode }[];
+  /** 現在の校正対象のインデックス */
+  index: number;
+};
+
 // プラグイン起動時にプラグイン用モーダルUIの設定を行います。この段階では非表示です。
 figma.showUI(__html__, {
   width: 344,
@@ -73,7 +92,7 @@ const postTextForUI = (page: PageNode) => {
     // 何も選択していない場合
     figma.ui.postMessage({
       type: "hasNothing",
-    });
+    } as alertType);
     return;
   }
 
@@ -86,13 +105,13 @@ const postTextForUI = (page: PageNode) => {
     figma.ui.postMessage({
       // 選択したオブジェクトにテキストが含まれていない場合
       type: "notTextNode",
-    });
+    } as alertType);
   } else {
     figma.ui.postMessage({
       type: "networkRequest",
       textArray: textArray,
       index: 0,
-    });
+    } as requestType);
     figma.ui.show();
     // 校正対象のテキストを選択状態とし、スクロールとズームを行う
     figma.currentPage.selection = [textArray[0].node];
@@ -124,7 +143,7 @@ figma.ui.onmessage = (msg) => {
       type: "networkRequest",
       textArray: textArray,
       index: msg + 1,
-    });
+    } as requestType);
     // 校正対象のテキストを選択状態とし、スクロールとズームを行う
     figma.currentPage.selection = [textArray[msg + 1].node];
     figma.viewport.scrollAndZoomIntoView([textArray[msg + 1].node]);
