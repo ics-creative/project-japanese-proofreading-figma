@@ -121,19 +121,27 @@ const postTextForUI = (page: PageNode) => {
 postTextForUI(figma.currentPage);
 
 /**
+ * postMessageで受け取る型の定義です
+ */
+type UiTransferType =
+  | "panelResize" // パネルサイズを変更する
+  | "closePlugin" // プラグインを閉じる
+  | number; // 現在の校正対象のインデックスを受け取り次の対象へ移るか、プラグインを閉じるかを分岐
+
+/**
  * HTMLページ内から `parent.postMessage`を呼び出すと、発火する処理です
  * 渡す引数によって処理の分岐を行います
  *
- * @param msg
+ * @param message
  */
-figma.ui.onmessage = (msg) => {
-  if (msg === "panelResize") {
+figma.ui.onmessage = (message: UiTransferType): void => {
+  if (message === "panelResize") {
     // パネルのリサイズ
     figma.ui.resize(600, 400);
-  } else if (msg === "closePlugin") {
+  } else if (message === "closePlugin") {
     // 校正対象が無いなどの例外処理時にはプラグインを閉じる
     figma.closePlugin();
-  } else if (msg === textArray.length - 1) {
+  } else if (message === textArray.length - 1) {
     // 次の校正指摘が無い場合プラグインを閉じる
     figma.closePlugin();
   } else {
@@ -142,10 +150,10 @@ figma.ui.onmessage = (msg) => {
     figma.ui.postMessage({
       type: "networkRequest",
       textArray: textArray,
-      index: msg + 1,
+      index: message + 1,
     } as requestType);
     // 校正対象のテキストを選択状態とし、スクロールとズームを行う
-    figma.currentPage.selection = [textArray[msg + 1].node];
-    figma.viewport.scrollAndZoomIntoView([textArray[msg + 1].node]);
+    figma.currentPage.selection = [textArray[message + 1].node];
+    figma.viewport.scrollAndZoomIntoView([textArray[message + 1].node]);
   }
 };
