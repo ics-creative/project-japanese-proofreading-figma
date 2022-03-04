@@ -90,6 +90,7 @@
   }
 
   .buttonClose {
+    display: none;
     border: none;
     color: #fff;
     background-color: #159ff9;
@@ -99,6 +100,9 @@
     line-height: 16px;
     padding: 7px 16px 6px;
     text-align: center;
+  }
+  .buttonClose.is-visible {
+    display: block;
   }
 </style>
 <div class="layout">
@@ -159,6 +163,7 @@
 
     // 読み込み開始
     loading.classList.add("is-visible");
+    button.classList.remove("is-visible");
 
     // テキスト校正くんを実行します
     // 外部へのリクエストはHTML側からのみ行え、fetch APIが扱えないのでXMLHttpRequestを使います
@@ -242,8 +247,10 @@
               ul.setAttribute("data-hasProblem", index);
             }
           }
-          // ローディングを非表示に
+          // ローディングを非表示
           loading.classList.remove("is-visible");
+          // ボタンを表示
+          button.classList.add("is-visible");
           // 現在の校正対象のindexをデータ属性に付与
           ul.setAttribute("data-index", index);
         }
