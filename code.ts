@@ -2,6 +2,25 @@
 // メインコードからは Figma の「scene」(Figma ドキュメントを構成するレイヤーの階層) にアクセスできます
 // 参考記事（https://zenn.dev/ixkaito/articles/how-to-make-a-figma-plugin）
 
+/**
+ * アラート表示を行う際にpostMessageへ渡す型の定義です
+ */
+type alertType = {
+  /** アラートの種類 */
+  type: "notTextNode" | "hasNothing";
+};
+
+/**
+ * ネットワークリクエストを行う際にpostMessageへ渡す型の定義です
+ */
+type requestType = {
+  type: "networkRequest";
+  /** 校正対象のテキストとnodeをまとめた配列 */
+  textArray: { text: string; node: SceneNode }[];
+  /** 現在の校正対象のインデックス */
+  index: number;
+};
+
 // プラグイン起動時にプラグイン用モーダルUIの設定を行います。この段階では非表示です。
 figma.showUI(__html__, {
   width: 344,
@@ -9,6 +28,55 @@ figma.showUI(__html__, {
   title: "テキスト校正くん",
   visible: false,
 });
+
+// 校正を行うテキスト情報を格納する配列です
+const textArray: { text: string; node: SceneNode }[] = [];
+
+/**
+ * テキスト情報とnodeを取得しtextArrayに格納する為の処理です
+ * @param node
+ */
+const setTextArrayObject = (node: SceneNode) => {
+  if (node.type === "TEXT") {
+    if (node.characters) {
+      textArray.push({
+        text: node.characters,
+        node: node,
+      });
+    }
+  } else if (node.type === "SHAPE_WITH_TEXT" || node.type === "STICKY") {
+    if (node.text.characters) {
+      textArray.push({
+        text: node.text.characters,
+        node: node,
+      });
+    }
+  } else if ("children" in node) {
+    if (node.children) {
+      node.children.forEach((child) => {
+        searchChildren(child);
+      });
+    }
+  }
+};
+
+/**
+ * 選択したオブジェクトから、テキスト情報とnodeを取得しtextArrayに格納する為の2階層目以降の処理です
+ * @param child
+ */
+const searchChildren = (child: SceneNode) => {
+  setTextArrayObject(child);
+};
+
+/**
+ * 選択したオブジェクトから、テキスト情報とnodeを取得しtextArrayに格納する為の1階層目の処理です
+ * @param item
+ */
+const setTextArray = (item: PageNode) => {
+  item.selection.forEach((node) => {
+    setTextArrayObject(node);
+  });
+};
 
 /**
  * プラグイン起動時に実行され、現在選択しているテキストを取得しHTML側へ渡します
@@ -20,53 +88,74 @@ figma.showUI(__html__, {
  * @param page
  */
 const postTextForUI = (page: PageNode) => {
-  if (page.selection.length !== 1) {
-    // 複数の要素を選択している場合、または何も選択していない場合
+  if (page.selection.length === 0) {
+    // 何も選択していない場合
     figma.ui.postMessage({
-      type: "selectMultiple",
-    });
+      type: "hasNothing",
+    } as alertType);
     return;
   }
 
-  // 現在選択中のNode
-  const selectionNode = page.selection[0];
+  // 選択したオブジェクトからテキストとそのノードをまとめた配列を作成
+  setTextArray(page);
+  // レイヤーので降順並ぶので、昇順に直します
+  textArray.reverse();
 
-  if (selectionNode.type === "TEXT") {
-    if (selectionNode.characters) {
-      // 問題がない場合。テキスト校正くんの実行とモーダルUIの表示を行います。
-      figma.ui.postMessage({
-        type: "networkRequest",
-        current: selectionNode.characters,
-      });
-      figma.ui.show();
-    } else {
-      // テキスト要素を選択しているものの、1文字も入力されていない場合
-      figma.ui.postMessage({
-        type: "notTextNode",
-      });
-    }
-  } else {
-    // テキスト以外の要素を選択している場合
+  if (textArray.length === 0) {
     figma.ui.postMessage({
+      // 選択したオブジェクトにテキストが含まれていない場合
       type: "notTextNode",
-    });
+    } as alertType);
+  } else {
+    figma.ui.postMessage({
+      type: "networkRequest",
+      textArray: textArray,
+      index: 0,
+    } as requestType);
+    figma.ui.show();
+    // 校正対象のテキストを選択状態とし、スクロールとズームを行う
+    figma.currentPage.selection = [textArray[0].node];
+    figma.viewport.scrollAndZoomIntoView([textArray[0].node]);
   }
 };
 postTextForUI(figma.currentPage);
 
 /**
+ * postMessageで受け取る型の定義です
+ */
+type UiTransferType =
+  | "panelResize" // パネルサイズを変更する
+  | "closePlugin" // プラグインを閉じる
+  | number; // 現在の校正対象のインデックスを受け取り次の対象へ移るか、プラグインを閉じるかを分岐
+
+/**
  * HTMLページ内から `parent.postMessage`を呼び出すと、発火する処理です
  * 渡す引数によって処理の分岐を行います
  *
- * @param msg
+ * @param message
  */
-figma.ui.onmessage = (msg) => {
-  if (msg === "closePlugin") {
-    // プラグインを閉じる
-    figma.closePlugin();
-  }
-  if (msg === "panelResize") {
-    // プラグインを閉じる
+figma.ui.onmessage = (message: UiTransferType): void => {
+  if (message === "panelResize") {
+    // パネルのリサイズ
     figma.ui.resize(600, 400);
+  } else if (message === "closePlugin") {
+    // 校正対象が無いなどの例外処理時にはプラグインを閉じる
+    figma.closePlugin();
+  } else if (typeof message === "number") {
+    if (message === textArray.length - 1) {
+      // 次の校正指摘が無い場合プラグインを閉じる
+      figma.closePlugin();
+    } else {
+      // 次の校正指摘を表示する
+      figma.ui.resize(344, 255);
+      figma.ui.postMessage({
+        type: "networkRequest",
+        textArray: textArray,
+        index: message + 1,
+      } as requestType);
+      // 校正対象のテキストを選択状態とし、スクロールとズームを行う
+      figma.currentPage.selection = [textArray[message + 1].node];
+      figma.viewport.scrollAndZoomIntoView([textArray[message + 1].node]);
+    }
   }
 };
