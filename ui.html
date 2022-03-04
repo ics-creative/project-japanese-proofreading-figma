@@ -132,14 +132,14 @@
     // メインコードから渡されたタイプを取得
     const type = event.data.pluginMessage.type;
 
-    // 複数の要素が選択された際の処理
-    if (type === "selectMultiple") {
+    // 何も選択していない場合
+    if (type === "hasNothing") {
       alert("テキストを選択してください。");
       parent.postMessage({ pluginMessage: "closePlugin" }, "*");
       return;
     }
 
-    // テキスト以外が選択された際の処理
+    // 選択したオブジェクトにテキストが含まれていない場合
     if (type === "notTextNode") {
       alert("テキストを含めて選択してください。");
       parent.postMessage({ pluginMessage: "closePlugin" }, "*");
@@ -185,7 +185,7 @@
           // 受け取ったメッセージの配列を取得
           const messagesArray = JSON.parse(e.currentTarget.response).messages;
           // テキスト校正くんに指摘された内容をリストに表示する
-          const creatLintList = () => {
+          const createLintList = () => {
             // メッセージを表示するためのHTMLタグ
             let lintListHtml = "";
 
@@ -215,7 +215,7 @@
               ul.classList.add("is-center");
             } else {
               // テキストに問題がある場合
-              creatLintList();
+              createLintList();
             }
           } else {
             // 校正対象となるテキストが複数の場合
@@ -237,7 +237,7 @@
               }
             } else {
               // テキストに問題がある場合
-              creatLintList();
+              createLintList();
               // 「すべてのテキストに問題が無かった場合」の判定のため、data属性を付与する（この属性がなければ、すべて問題がないと判断）
               ul.setAttribute("data-hasProblem", index);
             }

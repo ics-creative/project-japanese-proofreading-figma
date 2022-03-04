@@ -46,7 +46,7 @@ const setTextArrayObject = (node: SceneNode) => {
  * @param child
  */
 const searchChildren = (child: SceneNode) => {
-  setTextArrayObject(child)
+  setTextArrayObject(child);
 };
 
 /**
@@ -55,7 +55,7 @@ const searchChildren = (child: SceneNode) => {
  */
 const setTextArray = (item: PageNode) => {
   item.selection.forEach((node) => {
-    setTextArrayObject(node)
+    setTextArrayObject(node);
   });
 };
 
@@ -72,7 +72,7 @@ const postTextForUI = (page: PageNode) => {
   if (page.selection.length === 0) {
     // 何も選択していない場合
     figma.ui.postMessage({
-      type: "selectMultiple",
+      type: "hasNothing",
     });
     return;
   }
